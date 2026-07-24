@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="reset.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div id="toDoList">
+        <div class="card">
+            <h2>To-do List</h2>
+            <div class="input-area">
+                <input type="text" id="task" placeholder="Add Task">
+                <button id="addButton" onclick="addTask()">Add</button>
+            </div>
+            <div class="all-tasks">
+                <ul id="task-list">
+
+                </ul>
+            </div>
+        </div>
+        <div class="mode">
+            <button id="chngMode" class="light-btn" onclick="changeMode()"><i class="fa-regular fa-moon"></i></button>
+        </div>
+    </div>
+
+    <script>
+        loadTasks();
+        function addTask() {
+            const input = document.getElementById("task");
+            const text = input.value.trim()
+            const list = document.getElementById("task-list");
+            if(text==""){
+                alert("Please enter a task");
+                return;
+            }
+            list.innerHTML += `
+             <div class="tasks">
+              <input type="checkbox" onchange = "toggleDone(this)">
+              <li>${text}</li>
+              <button id="dltButton" onclick="deleteTask(this)" class="delete-btn">Delete</button>
+             </div>
+            
+            `
+            input.value = ""
+            saveTasks(getTasks().concat(text));
+        }
+       
+        function deleteTask(btn) {
+            const li = btn.parentElement
+            const taskText = li.querySelector("li").textContent;
+            li.remove()
+            const tasks = getTasks().filter(task => task !== taskText);
+            saveTasks(tasks);
+        }
+         function toggleDone(checkbox) {
+            const li = checkbox.nextElementSibling;
+            li.classList.toggle("done");
+        }
+        function changeMode() {
+            const element = document.getElementById("toDoList");
+            element.classList.toggle("dark");
+            const icon = document.querySelector("#chngMode i")
+            if (element.classList.contains("dark")) {
+                icon.className = "fa-regular fa-sun";
+            } else {
+                icon.className = "fa-regular fa-moon";
+            }
+        }
+
+        function saveTasks(tasks) {
+            localStorage.setItem("myTasks", JSON.stringify(tasks));
+        }
+        function getTasks() {
+            const tasks = localStorage.getItem("myTasks");
+            return tasks ? JSON.parse(tasks) : [];
+        }
+        function loadTasks() {
+            const tasks = getTasks();
+            const list = document.getElementById("task-list");
+            tasks.forEach(task => {
+                list.innerHTML += `
+             <div class="tasks">
+              <input type="checkbox">
+              <li>${task}</li>
+              <button id="dltButton" onclick="deleteTask(this)" class="delete-btn">Delete</button>
+             </div>
+            `
+            });
+        }
+
+
+    </script>
+    <script src="https://kit.fontawesome.com/69428b2b0e.js" crossorigin="anonymous"></script>
+
+</body>
+
+</html>
