@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>To-do List</title>
     <link rel="stylesheet" href="reset.css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -30,37 +30,40 @@
     </div>
 
     <script>
-        loadTasks();
+        renderTasks();
         function addTask() {
             const input = document.getElementById("task");
             const text = input.value.trim()
-            const list = document.getElementById("task-list");
             if(text==""){
                 alert("Please enter a task");
                 return;
             }
-            list.innerHTML += `
-             <div class="tasks">
-              <input type="checkbox" onchange = "toggleDone(this)">
-              <li>${text}</li>
-              <button id="dltButton" onclick="deleteTask(this)" class="delete-btn">Delete</button>
-             </div>
+            const tasks = getTasks();
+            tasks.push({text: text, done: false});
+            saveTasks(tasks);
+            input.value = "";
+            renderTasks();
             
-            `
-            input.value = ""
-            saveTasks(getTasks().concat(text));
         }
        
         function deleteTask(btn) {
             const li = btn.parentElement
             const taskText = li.querySelector("li").textContent;
             li.remove()
-            const tasks = getTasks().filter(task => task !== taskText);
+            const tasks = getTasks().filter(task => task.text !== taskText);
             saveTasks(tasks);
+            renderTasks();
         }
          function toggleDone(checkbox) {
             const li = checkbox.nextElementSibling;
+            const taskText = li.textContent;
             li.classList.toggle("done");
+            const tasks = getTasks();
+            const task = tasks.find(t => t.text === taskText);
+            if(task) {
+                task.done = checkbox.checked;
+                saveTasks(tasks);
+            }
         }
         function changeMode() {
             const element = document.getElementById("toDoList");
@@ -80,19 +83,24 @@
             const tasks = localStorage.getItem("myTasks");
             return tasks ? JSON.parse(tasks) : [];
         }
-        function loadTasks() {
-            const tasks = getTasks();
+        function renderTasks() {
             const list = document.getElementById("task-list");
+            list.innerHTML = "";
+            const tasks = getTasks();
             tasks.forEach(task => {
                 list.innerHTML += `
-             <div class="tasks">
-              <input type="checkbox">
-              <li>${task}</li>
-              <button id="dltButton" onclick="deleteTask(this)" class="delete-btn">Delete</button>
-             </div>
-            `
-            });
+                <div class = "tasks">
+                <input type="checkbox" onchange="toggleDone(this)" ${task.done ? "checked" : ""}>
+                <li class = "${task.done ? "done" : ""}">${task.text}</li>
+                <button id = "dltButton" onclick= "deleteTask(this)" class = "delete-btn">Delete</button>
+                
+                </div>
+                `
+            })
         }
+      
+
+
 
 
     </script>
